@@ -1,120 +1,110 @@
 {
-  "name":"Opening Times",
-  "type":"Time",
-  "path":"System",
-  
-  "version":"0.0.1",
-  "description":"Trigger opening and closing times",
-  "url":"https://github.com/DonGuig/Opening-Times-Chataigne-Module",
-  "downloadURL":"https://github.com/DonGuig/Opening-Times-Chataigne-Module/archive/master.zip",
+  "name": "Opening Times",
+  "type": "Time",
+  "path": "System",
 
-  "hasInput":false,
-  "hasOutput":true, 
+  "version": "0.0.1",
+  "description": "Trigger opening and closing times",
+  "url": "https://github.com/DonGuig/Opening-Times-Chataigne-Module",
+  "downloadURL": "https://github.com/DonGuig/Opening-Times-Chataigne-Module/archive/master.zip",
 
-  "hideDefaultCommands":true,
+  "hasInput": false,
+  "hasOutput": true,
 
-  "parameters":
-  {
-    "Opening time Monday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Mondays."
+  "hideDefaultCommands": true,
+
+  "parameters": {
+    "Opening time Monday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Mondays."
     },
-    "Closing time Monday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Mondays (you can input a time that is after midnight)."
+    "Closing time Monday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Mondays (you can input a time that is after midnight)."
     },
-    "Opening time Tuesday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Tuesdays."
+    "Opening time Tuesday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Tuesdays."
     },
-    "Closing time Tuesday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Tuesdays (you can input a time that is after midnight)."
+    "Closing time Tuesday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Tuesdays (you can input a time that is after midnight)."
     },
-    "Opening time Wednesday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Wednesdays."
+    "Opening time Wednesday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Wednesdays."
     },
-    "Closing time Wednesday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Wednesdays (you can input a time that is after midnight)."
+    "Closing time Wednesday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Wednesdays (you can input a time that is after midnight)."
     },
-    "Opening time Thursday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Thursdays."
+    "Opening time Thursday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Thursdays."
     },
-    "Closing time Thursday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Thursdays (you can input a time that is after midnight)."
+    "Closing time Thursday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Thursdays (you can input a time that is after midnight)."
     },
-    "Opening time Friday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Fridays."
+    "Opening time Friday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Fridays."
     },
-    "Closing time Friday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Fridays (you can input a time that is after midnight)."
+    "Closing time Friday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Fridays (you can input a time that is after midnight)."
     },
-    "Opening time Satursday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Satursdays."
+    "Opening time Satursday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Satursdays."
     },
-    "Closing time Satursday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Satursdays (you can input a time that is after midnight)."
+    "Closing time Satursday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Satursdays (you can input a time that is after midnight)."
     },
-    "Opening time Sunday":
-    {
-      "type":"String",
-      "default":"09:00",
-      "description":"Opening time on Sundays."
+    "Opening time Sunday": {
+      "type": "String",
+      "default": "09:00",
+      "description": "Opening time on Sundays."
     },
-    "Closing time Sunday":
-    {
-      "type":"String",
-      "default":"22:00",
-      "description":"Closing time on Sundays (you can input a time that is after midnight)."
+    "Closing time Sunday": {
+      "type": "String",
+      "default": "22:00",
+      "description": "Closing time on Sundays (you can input a time that is after midnight)."
+    },
+    "Exceptions": {
+      "type": "Container",
+      "collapsed": false,
+
+      "Add Exception":{
+        "type":"Trigger"
+      },
+      "Clear Exceptions":{
+        "type":"Trigger"
+      }
     }
   },
 
-  "scripts": 
-  [
-    "moduleScript.js"
-  ],
+  "scripts": ["moduleScript.js"],
 
-  "values":
-  {
-    "Opening Trigger":
-    {
-      "type":"Trigger"
+  "values": {
+    "Opening Trigger": {
+      "type": "Trigger"
     },
-    "Closing Trigger":
-    {
-      "type":"Trigger"
+    "Closing Trigger": {
+      "type": "Trigger"
     }
   }
 }

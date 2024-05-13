@@ -2,21 +2,54 @@
 //   script.log("Custom module init");
 // }
 
-const test = 0;
-
 function moduleParameterChanged(param) {
   script.log(param.name + " parameter changed");
 
   if (param.isParameter()) {
-    correctedInput = checkAndCorrectTimeInput(param.get());
-    param.set(correctedInput);
+    if (
+      param.name !== "day" &&
+      param.name !== "month" &&
+      param.name !== "year"
+    ) {
+      correctedInput = checkAndCorrectTimeInput(param.get());
+      param.set(correctedInput);
+    }
+  } else {
+    if (param.name == "addException") {
+      var exceptionsContainer = local.parameters.getChild("Exceptions");
+      var listChildren = util.getObjectProperties(
+        exceptionsContainer,
+        true,
+        false
+      );
+      var numberOfExceptions = listChildren.length - 2;
+      var exc = exceptionsContainer.addContainer(
+        "Exception" + (numberOfExceptions + 1)
+      );
+      exc.addIntParameter("Day", "Day of the month", 1, 1, 31);
+      exc.addIntParameter("Month", "from 1 to 12", 1, 1, 12);
+      exc.addIntParameter("Year", "4 digits, e.g. 2024", 1970);
+      exc.addStringParameter("Opening Time", "HH:MM", "09:00");
+      exc.addStringParameter("Closing Time", "HH:MM", "22:00");
+    } else if (param.name == "clearExceptions") {
+      var exceptionsContainer = local.parameters.getChild("Exceptions");
+      var listChildren = util.getObjectProperties(
+        exceptionsContainer,
+        true,
+        false
+      );
+      for (var i = 0; i < listChildren.length; i++) {
+        var name = listChildren[i];
+        if (name !== "addException" && name !== "clearExceptions") {
+          exceptionsContainer.removeContainer(name);
+        }
+      }
+    }
   }
 }
 
 function moduleValueChanged(value) {
   // script.log(value.name + " value changed");
-
-  console.log(local.parameters.openingTimeMonday.get());
 
   if (value.name == "minutes") {
     var todayOpeningTime = "";
@@ -24,6 +57,55 @@ function moduleValueChanged(value) {
     // so we might have 2 closing triggers in one day, one of them corresponding to yesterday
     // hence the list of closing times
     var todayClosingTimes = [];
+
+    var exceptionOpeningTime;
+    var exceptionClosingTime;
+    var yesterdayExceptionOpeningTime;
+    var yesterdayExceptionClosingTime;
+
+    //check exceptions
+    var dayInMonth = local.values.monthDay.get();
+    var month = local.values.month.get();
+    var year = local.values.year.get();
+    var yesterday = getYesterday(dayInMonth, month, year);
+    var exceptionsContainer = local.parameters.getChild("Exceptions");
+    var listChildren = util.getObjectProperties(
+      exceptionsContainer,
+      true,
+      false
+    );
+    for (var i = 0; i < listChildren.length; i++) {
+      var name = listChildren[i];
+      if (name !== "addException" && name !== "clearExceptions") {
+        var exception = exceptionsContainer.getChild(name);
+        if (typeof exception !== "void") {
+          script.log(exception.closingTime.get());
+          if (
+            exception.year.get() == year &&
+            exception.month.get() == month &&
+            exception.day.get() == dayInMonth
+          ) {
+            exceptionOpeningTime = exception.openingTime.get();
+            exceptionClosingTime = exception.closingTime.get();
+            script.log(
+              "exception found " +
+                exceptionOpeningTime +
+                " " +
+                exceptionClosingTime
+            );
+          }
+          if (
+            exception.year.get() == yesterday[2] &&
+            exception.month.get() == yesterday[1] &&
+            exception.day.get() == yesterday[0]
+          ) {
+            // there was an exception yesterday
+            yesterdayExceptionOpeningTime = exception.openingTime.get();
+            yesterdayExceptionClosingTime = exception.closingTime.get();
+          }
+        }
+      }
+    }
 
     var timesObj = [
       {
@@ -64,14 +146,33 @@ function moduleValueChanged(value) {
       yesterdayNumber = 6;
     }
 
-    var todayOpeningTime = timesObj[todayNumber].opening;
-    var todayClosingTime = timesObj[todayNumber].closing;
+    var todayOpeningTime;
+    var todayClosingTime;
+
+    if (typeof exceptionOpeningTime !== "undefined"){
+      // means today is an exception
+      todayOpeningTime = exceptionOpeningTime;
+      todayClosingTime = exceptionClosingTime;
+    } else {
+      todayOpeningTime = timesObj[todayNumber].opening;
+      todayClosingTime = timesObj[todayNumber].closing;
+    }
     if (isTimeGreater(todayClosingTime, todayOpeningTime)) {
       // if opening time is before closing time, closing should happen the same day
       todayClosingTimes.push(todayClosingTime);
     }
-    var yesterdayOpeningTime = timesObj[yesterdayNumber].opening;
-    var yesterdayClosingTime = timesObj[yesterdayNumber].closing;
+
+    var yesterdayOpeningTime;
+    var yesterdayClosingTime;
+
+    if (typeof yesterdayExceptionOpeningTime !== "undefined"){
+      yesterdayOpeningTime = yesterdayExceptionOpeningTime;
+      yesterdayClosingTime = yesterdayExceptionClosingTime;
+    } else {
+      yesterdayOpeningTime = timesObj[yesterdayNumber].opening;
+      yesterdayClosingTime = timesObj[yesterdayNumber].closing;
+  
+    }
     if (isTimeGreater(yesterdayOpeningTime, yesterdayClosingTime)) {
       // this means the user intended the closing time of yesterday to be after midnight
       // which means, today
@@ -113,11 +214,8 @@ function checkAndCorrectTimeInput(timeString) {
 
   // Parse hours and minutes
   // in JUCE, it returns 0 if not a number
-  var hours = parseInt(parts[0], 10);
-  var minutes = parseInt(parts[1], 10);
-
-  hours = Math.round(hours);
-  minutes = Math.round(minutes);
+  var hours = Math.round(parts[0]);
+  var minutes = Math.round(parts[1]);
 
   //constrain hours to 0-23, minutes to 0-59
   if (hours < 0) {
@@ -132,6 +230,7 @@ function checkAndCorrectTimeInput(timeString) {
   if (minutes > 59) {
     minutes = 59;
   }
+
 
   return padNumberWithZeros(hours, 2) + ":" + padNumberWithZeros(minutes, 2);
 }
@@ -177,4 +276,35 @@ function isTimeGreater(time1, time2) {
   return totalMinutes1 > totalMinutes2;
 }
 
-module.exports={moduleValueChanged, test};
+function getYesterday(dayMonth, month, year) {
+  // dayMonth, month and year are integers
+  if (dayMonth !== 1) {
+    return [dayMonth - 1, month, year];
+  } else {
+    // means today is 1st of month, so yesterday was previous month
+    var newMonth = month - 1;
+    var newYear = year;
+    var newDayMonth = 0;
+    if (newMonth == 0) {
+      //means it is 1st of january
+      newMonth = 12; 
+      newYear = year - 1;
+    }
+    if (newMonth == 2) {
+      newDayMonth = 28;
+    } else if (
+      newMonth == 1 ||
+      newMonth == 3 ||
+      newMonth == 5 ||
+      newMonth == 7 ||
+      newMonth == 8 ||
+      newMonth == 10 ||
+      newMonth == 12
+    ) {
+      newDayMonth = 31;
+    } else {
+      newDayMonth = 30;
+    }
+    return [newDayMonth, newMonth, newYear];
+  }
+}
