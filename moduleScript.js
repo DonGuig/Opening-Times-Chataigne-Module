@@ -256,8 +256,8 @@ function isTimeEqual(input1Time, input2Hour, input2Minutes) {
   // input2Hour and input2Minutes should be numbers
 
   var parts = input1Time.split(":");
-  var input1Hour = parseInt(parts[0]);
-  var input1Minutes = parseInt(parts[1]);
+  var input1Hour = Math.round(parts[0]);
+  var input1Minutes = Math.round(parts[1]);
 
   return input1Hour == input2Hour && input1Minutes == input2Minutes;
 }
@@ -270,8 +270,8 @@ function isTimeGreater(time1, time2) {
   var parts1 = time1.split(":");
   var parts2 = time2.split(":");
 
-  totalMinutes1 = parseInt(parts1[0]) * 60 + parseInt(parts1[1]);
-  totalMinutes2 = parseInt(parts2[0]) * 60 + parseInt(parts2[1]);
+  totalMinutes1 = Math.round(parts1[0]) * 60 + Math.round(parts1[1]);
+  totalMinutes2 = Math.round(parts2[0]) * 60 + Math.round(parts2[1]);
 
   return totalMinutes1 > totalMinutes2;
 }
