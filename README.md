@@ -8,8 +8,8 @@ You can request that the closing happens after midnight, with for example openin
 
 You can also add exceptions : at a given date, other opening and closing times will be used.
 
-[!WARNING]
-Exceptions made on the 29th of february / 1st of march on a leap year will not work.
+> [!WARNING]
+> Exceptions made on the 29th of february / 1st of march on a leap year will not work.
 
 
 More info about Chataigne : https://benjamin.kuperberg.fr/chataigne
