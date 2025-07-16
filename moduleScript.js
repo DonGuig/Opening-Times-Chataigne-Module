@@ -33,16 +33,11 @@ function moduleParameterChanged(param) {
       exc.addStringParameter("Closing Time", "HH:MM", "22:00");
     } else if (param.name == "clearExceptions") {
       var exceptionsContainer = local.parameters.getChild("Exceptions");
-      var listChildren = util.getObjectProperties(
-        exceptionsContainer,
-        true,
-        false
-      );
-      for (var i = 0; i < listChildren.length; i++) {
-        var name = listChildren[i];
-        if (name !== "addException" && name !== "clearExceptions") {
-          exceptionsContainer.removeContainer(name);
-        }
+      var listContainers = exceptionsContainer.getContainers();
+      for (var i = 0; i < listContainers.length; i++) {
+        var container = listContainers[i];
+        container.clear();
+        exceptionsContainer.removeContainer(container.name);
       }
     }
   }
@@ -68,42 +63,36 @@ function moduleValueChanged(value) {
     var month = local.values.month.get();
     var year = local.values.year.get();
     var yesterday = getYesterday(dayInMonth, month, year);
-    var exceptionsContainer = local.parameters.getChild("Exceptions");
-    var listChildren = util.getObjectProperties(
-      exceptionsContainer,
-      true,
-      false
-    );
-    for (var i = 0; i < listChildren.length; i++) {
-      var name = listChildren[i];
-      if (name !== "addException" && name !== "clearExceptions") {
-        var exception = exceptionsContainer.getChild(name);
-        if (typeof exception !== "void") {
-          script.log(exception.closingTime.get());
-          if (
-            exception.year.get() == year &&
-            exception.month.get() == month &&
-            exception.day.get() == dayInMonth
-          ) {
-            exceptionOpeningTime = exception.openingTime.get();
-            exceptionClosingTime = exception.closingTime.get();
-            script.log(
-              "exception found " +
-                exceptionOpeningTime +
-                " " +
-                exceptionClosingTime
-            );
-          }
-          if (
-            exception.year.get() == yesterday[2] &&
-            exception.month.get() == yesterday[1] &&
-            exception.day.get() == yesterday[0]
-          ) {
-            // there was an exception yesterday
-            yesterdayExceptionOpeningTime = exception.openingTime.get();
-            yesterdayExceptionClosingTime = exception.closingTime.get();
-          }
-        }
+    var exceptionsMasterContainer = local.parameters.getChild("Exceptions");
+    var listExceptionContainers = exceptionsMasterContainer.getContainers();
+    for (var i = 0; i < listExceptionContainers.length; i++) {
+      var container = listExceptionContainers[i];
+      // var paramsAndTriggers = container.getControllables(true, false);
+      if (
+        container.year.get() == year &&
+        container.month.get() == month &&
+        container.day.get() == dayInMonth
+      ) {
+        exceptionOpeningTime = container.openingTime.get();
+        exceptionClosingTime = container.closingTime.get();
+        script.log(
+          "exception found " + exceptionOpeningTime + " " + exceptionClosingTime
+        );
+      }
+      if (
+        container.year.get() == yesterday[2] &&
+        container.month.get() == yesterday[1] &&
+        container.day.get() == yesterday[0]
+      ) {
+        // there was an exception yesterday
+        yesterdayExceptionOpeningTime = container.openingTime.get();
+        yesterdayExceptionClosingTime = container.closingTime.get();
+        script.log(
+          "there was also an exception yesterday " +
+            exceptionOpeningTime +
+            " " +
+            exceptionClosingTime
+        );
       }
     }
 
@@ -149,7 +138,7 @@ function moduleValueChanged(value) {
     var todayOpeningTime;
     var todayClosingTime;
 
-    if (typeof exceptionOpeningTime !== "undefined"){
+    if (typeof exceptionOpeningTime !== "undefined") {
       // means today is an exception
       todayOpeningTime = exceptionOpeningTime;
       todayClosingTime = exceptionClosingTime;
@@ -165,13 +154,12 @@ function moduleValueChanged(value) {
     var yesterdayOpeningTime;
     var yesterdayClosingTime;
 
-    if (typeof yesterdayExceptionOpeningTime !== "undefined"){
+    if (typeof yesterdayExceptionOpeningTime !== "undefined") {
       yesterdayOpeningTime = yesterdayExceptionOpeningTime;
       yesterdayClosingTime = yesterdayExceptionClosingTime;
     } else {
       yesterdayOpeningTime = timesObj[yesterdayNumber].opening;
       yesterdayClosingTime = timesObj[yesterdayNumber].closing;
-  
     }
     if (isTimeGreater(yesterdayOpeningTime, yesterdayClosingTime)) {
       // this means the user intended the closing time of yesterday to be after midnight
@@ -231,7 +219,6 @@ function checkAndCorrectTimeInput(timeString) {
     minutes = 59;
   }
 
-
   return padNumberWithZeros(hours, 2) + ":" + padNumberWithZeros(minutes, 2);
 }
 
@@ -287,7 +274,7 @@ function getYesterday(dayMonth, month, year) {
     var newDayMonth = 0;
     if (newMonth == 0) {
       //means it is 1st of january
-      newMonth = 12; 
+      newMonth = 12;
       newYear = year - 1;
     }
     if (newMonth == 2) {
